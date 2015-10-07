@@ -1,0 +1,73 @@
+class BinaryTree:
+  def __init__(self, root_obj):
+    self.key = root_obj
+    self.left = None
+    self.right = None
+
+  def insertLeft(self, newNode):
+    t = BinaryTree(newNode)
+    t.left = self.left
+    self.left = t
+
+  def insertRight(self, newNode):
+    t = BinaryTree(newNode)
+    t.right = self.right
+    self.right = t
+
+def rinorder(t):
+  if t is not None:
+    rinorder(t.left)
+    print t.key
+    rinorder(t.right)
+
+def build_tree1():
+  r = BinaryTree('a')
+  r.left = BinaryTree('b')
+  r.left.right = BinaryTree('d')
+  r.right = BinaryTree('c')
+  r.right.left = BinaryTree('e')
+  r.right.right = BinaryTree('f')
+  rinorder(r)
+
+def test1():
+  r = BinaryTree('a')
+  r.insertLeft('b')
+  r.insertRight('c')
+
+def build_parse_tree(exp):
+  fexp = exp.split()
+  cnode = BinaryTree('$')
+  st = [cnode]
+  for x in fexp:
+    if x == '(':
+      cnode.insertLeft('$')
+      st.append(cnode)
+      cnode = cnode.left
+    elif x not in ['+','-','*','/',')']:
+      cnode.key = int(x)
+      cnode = st.pop()
+    elif x in ['+','-','*','/']:
+      cnode.key = x
+      cnode.insertRight('$')
+      st.append(cnode)
+      cnode = cnode.right
+    elif x == ')':
+      cnode = st.pop()
+  return cnode
+
+import operator
+def evaluate(t):
+  op = {'+':operator.add, '-':operator.sub, '*':operator.mul, '/':operator.truediv}
+  if t is not None and t.key in op.keys():
+    return op[t.key](evaluate(t.left), evaluate(t.right))
+  elif t is not None:
+    return t.key
+    
+
+
+if __name__ == "__main__":
+  build_tree1()
+  pt = build_parse_tree("( ( 10 + 5 ) * 3 )")
+  pt1 = build_parse_tree("( 3 + ( 4 * 5 ) )")
+  #rinorder(pt)
+  print evaluate(pt1)
