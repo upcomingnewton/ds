@@ -179,9 +179,15 @@ if __name__ == "__main__":
     g1.addEdge('f','g',11)
     
     printg(g1)
-    prim_mst(g1,g1.getVertex('a'))
-    print_par(g1)
-    
+    v = ['a','b','c','d','e','f','g']
+    m = sys.maxsize
+    for x in v:
+      prim_mst(g1,g1.getVertex(x))
+      print 'calling from',x
+      print_par(g1)
+      print '-'*40
+          
+ 
     g2 = Graph()
     g2.addEdge('a','b',10)
     g2.addEdge('a','d',5)
