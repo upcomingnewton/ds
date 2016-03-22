@@ -1,0 +1,141 @@
+import sys
+
+class Vertex:
+	def __init__(self, key, parent=None, color="White", distance=0):
+		self.key = key
+		self.neighbours = dict()
+		self.parent = parent
+		self.color = color
+		self.distance = distance
+	
+	def addNeighbour(self, key, wt=0):
+		self.neighbours[key] = wt
+	
+	def getNeighbours(self):
+		return self.neighbours.keys()
+	
+	def getNeighbourWeight(self, key):
+		return self.neighbours.get(key)
+	
+	def __str__(self):
+		return "{0} ({1})".format(str(self.key), ",".join([str(x.key) for x in self.neighbours]))
+
+class Graph:
+	def __init__(self):
+		self.vertices = dict()
+		
+	def addVertex(self, key):
+		if self.vertices.get(key) == None:
+			self.vertices[key] = Vertex(key)
+		return self.vertices.get(key)
+		
+	def getVertex(self, key):
+		return self.vertices.get(key)
+	
+	def getVertices(self):
+		return self.vertices.keys()
+	
+	def addEdge(self, src, des, wt=0):
+		s = self.addVertex(src)
+		d = self.addVertex(des)
+		s.addNeighbour(d,wt)
+		if s not in d.neighbours.keys():
+			d.addNeighbour(s,0)
+	
+	def __iter__(self):
+		return iter(self.vertices.values())
+
+
+def bfs(g,s,t):
+	for x in g:
+		x.parent = None
+		x.distance = 0
+		x.color = "White"
+	q = list()
+	q.append(s)
+	s.color = "Gray"
+	while len(q) > 0:
+		cur = q.pop(0)
+		for nbr in cur.getNeighbours():
+			if nbr.color == "White" and cur.getNeighbourWeight(nbr) > 0:
+				nbr.color = "Gray"
+				nbr.parent = cur
+				q.append(nbr)
+	return t.color == "Gray"
+	
+def ff(g,s,t):
+	max_flow = 0
+	while( bfs(g,s,t) != False):
+		path_flow = sys.maxsize
+		v = t
+		while( v != s):
+			u = v.parent
+			path_flow = min(path_flow, u.getNeighbourWeight(v))
+			v = u
+			
+		v = t
+		while( v != s):
+			u = v.parent
+			u.neighbours[v] -= path_flow
+			v.neighbours[u] += path_flow
+			v = u
+		
+		max_flow += path_flow
+	return max_flow
+	
+def g1():
+	g = Graph()
+	g.addEdge('s','v1',16)
+	g.addEdge('s','v2',13)
+	g.addEdge('v1','v2',10)
+	g.addEdge('v2','v1',4)
+	g.addEdge('v1','v3',12)
+	g.addEdge('v2','v4',14)
+	g.addEdge('v3','v2',9)
+	g.addEdge('v4','v3',7)
+	g.addEdge('v3','t',20)
+	g.addEdge('v4','t',4)
+	return g
+	
+def g2():
+	g = Graph()
+	g.addEdge('s','b',10)
+	g.addEdge('s','c',5)
+	g.addEdge('s','d',15)
+	g.addEdge('b','e',9)
+	g.addEdge('b','c',4)
+	g.addEdge('b','f',15)
+	g.addEdge('c','d',4)
+	g.addEdge('c','f',8)
+	g.addEdge('d','g',30)
+	g.addEdge('e','t',10)
+	g.addEdge('e','f',15)
+	g.addEdge('f','t',10)
+	g.addEdge('f','g',15)
+	g.addEdge('g','t',10)
+	return g
+	
+def g3():
+	g = Graph()
+	g.addEdge('s','a',10)
+	g.addEdge('s','b',10)
+	g.addEdge('a','b',2)
+	g.addEdge('a','c',4)
+	g.addEdge('a','d',8)
+	g.addEdge('b','d',9)
+	g.addEdge('c','t',10)
+	g.addEdge('d','c',6)
+	g.addEdge('d','t',10)
+	return g
+
+def printg(g):
+	print '-'*50
+	for x in g:
+		print x.key, x.distance, x.parent, x
+if __name__ == "__main__":
+	g1 = g1()
+	g2 = g2()
+	g3 = g3()
+	g = g3
+	print ff(g,g.getVertex('s'), g.getVertex('t'))
+	printg(g)
